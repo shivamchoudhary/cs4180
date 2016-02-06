@@ -81,11 +81,11 @@ int main(int argc, char *argv[])
      send(newsockfd, "Hello, world!\n", 13, 0);
 
      bzero(buffer,256);
-
+     while (1){
      n = read(newsockfd,buffer,255);
      if (n < 0) error("ERROR reading from socket");
      printf("Here is the message: %s\n",buffer);
-
+     }
      close(newsockfd);
      close(sockfd);
      return 0; 
