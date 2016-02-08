@@ -20,7 +20,6 @@ void error(const char *msg)
 int main(int argc, char *argv[])
 {
     int sockfd, portno, n;
-    
     struct sockaddr_in serv_addr;
     struct hostent *server;
     
@@ -56,9 +55,8 @@ int main(int argc, char *argv[])
             n = read(sockfd,buffer,255);
             if (n < 0) 
                  error("ERROR reading from socket");
-            cout<<"Response"<<buffer;
+            cout<<"Server: "<<buffer<<endl;
     }
-    printf("%s\n",buffer);
     close(sockfd);
     return 0;
 }
