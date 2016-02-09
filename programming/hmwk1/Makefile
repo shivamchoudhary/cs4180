@@ -1,8 +1,5 @@
+client:client.o
+	g++ -Wall client.cpp -o client
 
-server:
-	python server.py 
-client:
-	python client.py
-clean:
-	rm *.pyc *.log
-
+server:server.o
+	g++ -Wall server.cpp -o server
