@@ -31,25 +31,18 @@ int encrypt(unsigned char *key, unsigned char *iv,unsigned char *ciphertext){
         */
         ifstream filestream;
         filestream.open("test.txt",ios::in);
-        //char buffer[128];
-        len = 0;
-        ciphertext_len = 0;
-        /*while (filestream.read(buffer,sizeof(buffer))){*/
-                //unsigned char *x = (unsigned char *)buffer;
-                //if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len,x, 
-                               //strlen((char *)x))) handleErrors();
-                //ciphertext_len += len;
+        std::ifstream in("test.txt");
+        std::string contents((std::istreambuf_iterator<char>(in)), 
+        std::istreambuf_iterator<char>());
         
-        /*}*/
-        ifstream inFile;
-        inFile.open("test.txt");//open the input file
-        stringstream strStream;
-        strStream << inFile.rdbuf();//read the file
-        string str = strStream.str();//str holds the content of the file
-        cout << str << endl;//you can do anything with the string!!!
-                /* Finalise the encryption. Further ciphertext bytes may be written at
+        /* Finalise the encryption. Further ciphertext bytes may be written at
         * this stage.
         */
+        unsigned char *plaintext = (unsigned char *) contents.c_str();
+        if (1!=EVP_EncryptUpdate(ctx,ciphertext,&len,plaintext,
+                                strlen((char *)plaintext))) 
+                handleErrors();
+        ciphertext_len = len;
         if(1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) 
         handleErrors();
         ciphertext_len += len;
