@@ -1,96 +1,131 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <openssl/aes.h>
- 
-/* AES key for Encryption and Decryption */
-const static unsigned char aes_key[]={0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0xAA,0xBB,0xCC,0xDD,0xEE,0xFF};
- 
-/* Print Encrypted and Decrypted data packets */
-void print_data(const char *tittle, const void* data, int len);
- 
-int main( )
-{
-	/* Input data to encrypt */
-	unsigned char aes_input[]={0x0,0x1,0x2,0x3,0x4,0x5};
-	
-	/* Init vector */
-	unsigned char iv[AES_BLOCK_SIZE];
-	memset(iv, 0x00, AES_BLOCK_SIZE);
-	
-	/* Buffers for Encryption and Decryption */
-	unsigned char enc_out[sizeof(aes_input)];
-	unsigned char dec_out[sizeof(aes_input)];
-	
-	/* AES-128 bit CBC Encryption */
-	AES_KEY enc_key, dec_key;
-	AES_set_encrypt_key(aes_key, sizeof(aes_key)*8, &enc_key);
-	AES_cbc_encrypt(aes_input, enc_out, sizeof(aes_input), &enc_key, iv, AES_ENCRYPT);
-	/* AES-128 bit CBC Decryption */
-	memset(iv, 0x00, AES_BLOCK_SIZE); // don't forget to set iv vector again, else you can't decrypt data properly
-	AES_set_decrypt_key(aes_key, sizeof(aes_key)*8, &dec_key); // Size of key is in bits
-	AES_cbc_encrypt(enc_out, dec_out, sizeof(aes_input), &dec_key, iv, AES_DECRYPT);
-	
-	/* Printing and Verifying */
-	print_data("\n Original ",aes_input, sizeof(aes_input)); // you can not print data as a string, because after Encryption its not ASCII
-	
-	print_data("\n Encrypted",enc_out, sizeof(enc_out));
-	
-	print_data("\n Decrypted",dec_out, sizeof(dec_out));
-	
-	return 0;
+#include <openssl/conf.h>
+#include <openssl/evp.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
+#include <string>
+
+void handleErrors(void){
+        ERR_print_errors_fp(stderr);
+        abort();
+}
+int encrypt(unsigned char *plaintext,int plaintext_len,unsigned char *key,
+                unsigned char *iv,unsigned char *ciphertext){
+        EVP_CIPHER_CTX *ctx;
+        int len;
+        int ciphertext_len;
+        /* Create and initialise the context */
+        if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
+        /* Initialise the encryption operation. IMPORTANT - ensure you use a key
+        * and IV size appropriate for your cipher
+        * In this example we are using 256 bit AES (i.e. a 256 bit key). The
+        * IV size for *most* modes is the same as the block size. For AES this
+        * is 128 bits */
+        if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv))
+        handleErrors();
+        /* Provide the message to be encrypted, and obtain the encrypted output.
+        * EVP_EncryptUpdate can be called multiple times if necessary
+        */
+        if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len))
+        handleErrors();
+        ciphertext_len = len;
+        /* Finalise the encryption. Further ciphertext bytes may be written at
+        * this stage.
+        */
+        if(1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) handleErrors();
+        ciphertext_len += len;
+        /* Clean up */
+        EVP_CIPHER_CTX_free(ctx);
+        return ciphertext_len;
+
+}
+int decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key,
+                unsigned char *iv,unsigned char *plaintext){
+        EVP_CIPHER_CTX *ctx;
+
+        int len;
+
+        int plaintext_len;
+
+        /* Create and initialise the context */
+        if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
+
+        /* Initialise the decryption operation. IMPORTANT - ensure you use a key
+        * and IV size appropriate for your cipher
+        * In this example we are using 256 bit AES (i.e. a 256 bit key). The
+        * IV size for *most* modes is the same as the block size. For AES this
+        * is 128 bits */
+        if(1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv))
+        handleErrors();
+
+        /* Provide the message to be decrypted, and obtain the plaintext output.
+        * EVP_DecryptUpdate can be called multiple times if necessary
+        */
+        if(1 != EVP_DecryptUpdate(ctx, plaintext, &len, ciphertext, ciphertext_len))
+        handleErrors();
+        plaintext_len = len;
+
+        /* Finalise the decryption. Further plaintext bytes may be written at
+        * this stage.
+        */
+        if(1 != EVP_DecryptFinal_ex(ctx, plaintext + len, &len)) handleErrors();
+        plaintext_len += len;
+
+        /* Clean up */
+        EVP_CIPHER_CTX_free(ctx);
+
+        return plaintext_len;
+
+}
+
+int start(unsigned char *inputkey){
+        //unsigned char *key = (unsigned char *)"01234567890123456789012345678901";
+        /* A 128 bit IV */
+        unsigned char *key = (unsigned char *)inputkey;
+        unsigned char *iv = (unsigned char *)"01234567890123456";
+
+        /* Message to be encrypted */
+        //unsigned char *plaintext =
+                //(unsigned char *)"The quick brown fox jumps over the lazy dog";
+        unsigned char *plaintext = (unsigned char *)key;
+        /* Buffer for ciphertext. Ensure the buffer is long enough for the
+        * ciphertext which may be longer than the plaintext, dependant on the
+        * algorithm and mode
+        */
+        unsigned char ciphertext[128];
+
+        /* Buffer for the decrypted text */
+        unsigned char decryptedtext[128];
+
+        int decryptedtext_len, ciphertext_len;
+
+        /* Initialise the library */
+        ERR_load_crypto_strings();
+        OpenSSL_add_all_algorithms();
+        OPENSSL_config(NULL);
+
+        /* Encrypt the plaintext */
+        ciphertext_len = encrypt (plaintext, strlen ((char *)plaintext), key, iv,
+                            ciphertext);
+
+        /* Do something useful with the ciphertext here */
+        printf("Ciphertext is:\n");
+        BIO_dump_fp (stdout, (const char *)ciphertext, ciphertext_len);
+
+        /* Decrypt the ciphertext */
+        decryptedtext_len = decrypt(ciphertext, ciphertext_len, key, iv,
+        decryptedtext);
+
+        /* Add a NULL terminator. We are expecting printable text */
+        decryptedtext[decryptedtext_len] = '\0';
+
+        /* Show the decrypted text */
+        printf("Decrypted text is:\n");
+        printf("%s\n", decryptedtext);
+
+        /* Clean up */
+        EVP_cleanup();
+        ERR_free_strings();
+
+        return 0;
 }
  
-void print_data(const char *tittle, const void* data, int len)
-{
-	printf("%s : ",tittle);
-	const unsigned char * p = (const unsigned char*)data;
-	int i = 0;
-	
-	for (; i<len; ++i)
-		printf("%02X ", *p++);
-	
-	printf("\n");
-}
-
-/*#include<iostream>*/
-//#include<openssl/aes.h>
-
-
-//using namespace std;
-//static const unsigned char key[] = {
-    //0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
-    //0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff,
-    //0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-    //0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
-//};
-
-//int main()
-//{
-    //unsigned char text[]="hello world!";
-    //unsigned char iv[AES_BLOCK_SIZE];
-    //memset (iv,0X00,AES_BLOCK_SIZE);
-    //unsigned char enc_out[sizeof(text)];
-    //unsigned char dec_out[sizeof(text)];
-    //AES_KEY enc_key, dec_key;
-    //AES_set_encrypt_key(key, sizeof(key)*8, &enc_key);
-    //AES_cbc_encrypt(text, enc_out, sizeof(text),&enc_key,iv,AES_ENCRYPT);      
-    //memset (iv,0X00,AES_BLOCK_SIZE);
-    //AES_set_decrypt_key(key,sizeof(key)*8,&dec_key);
-    //AES_cbc_encrypt(enc_out, dec_out, sizeof(text),&dec_key,iv,AES_DECRYPT);
-
-    //int i;
-
-    //cout<<"original:\t";
-    //for(i=0;*(text+i)!=0x00;i++)
-        //cout<<*(text+i);
-    //cout<<"\nencrypted:\t";
-    //for(i=0;*(enc_out+i)!=0x00;i++)
-        //cout<<*(enc_out+i);
-    //printf("\ndecrypted:\t");
-    //for(i=0;*(dec_out+i)!=0x00;i++)
-        //cout<<*(dec_out+i);
-    //[>printf("\n");<]
-
-    //return 0;
-/*}*/ 
