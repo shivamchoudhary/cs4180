@@ -26,13 +26,15 @@ int encrypt(unsigned char *plaintext,int plaintext_len,unsigned char *key,
         /* Provide the message to be encrypted, and obtain the encrypted output.
         * EVP_EncryptUpdate can be called multiple times if necessary
         */
-        if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, plaintext_len))
+        if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, 
+                                plaintext_len))
         handleErrors();
         ciphertext_len = len;
         /* Finalise the encryption. Further ciphertext bytes may be written at
         * this stage.
         */
-        if(1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) handleErrors();
+        if(1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) 
+        handleErrors();
         ciphertext_len += len;
         /* Clean up */
         EVP_CIPHER_CTX_free(ctx);
