@@ -3,13 +3,16 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <string>
+#include <fstream>
+#include <iostream>
+#include <streambuf>
+#include <sstream>
 using namespace std;
 void handleErrors(void){
         ERR_print_errors_fp(stderr);
         abort();
 }
-int encrypt(unsigned char *plaintext,int plaintext_len,unsigned char *key,
-                unsigned char *iv,unsigned char *ciphertext){
+int encrypt(unsigned char *key, unsigned char *iv,unsigned char *ciphertext){
         EVP_CIPHER_CTX *ctx;
         int len;
         int ciphertext_len;
@@ -26,11 +29,25 @@ int encrypt(unsigned char *plaintext,int plaintext_len,unsigned char *key,
         /* Provide the message to be encrypted, and obtain the encrypted output.
         * EVP_EncryptUpdate can be called multiple times if necessary
         */
-        if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len, plaintext, 
-                                plaintext_len))
-        handleErrors();
-        ciphertext_len = len;
-        /* Finalise the encryption. Further ciphertext bytes may be written at
+        ifstream filestream;
+        filestream.open("test.txt",ios::in);
+        //char buffer[128];
+        len = 0;
+        ciphertext_len = 0;
+        /*while (filestream.read(buffer,sizeof(buffer))){*/
+                //unsigned char *x = (unsigned char *)buffer;
+                //if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len,x, 
+                               //strlen((char *)x))) handleErrors();
+                //ciphertext_len += len;
+        
+        /*}*/
+        ifstream inFile;
+        inFile.open("test.txt");//open the input file
+        stringstream strStream;
+        strStream << inFile.rdbuf();//read the file
+        string str = strStream.str();//str holds the content of the file
+        cout << str << endl;//you can do anything with the string!!!
+                /* Finalise the encryption. Further ciphertext bytes may be written at
         * this stage.
         */
         if(1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) 
@@ -39,19 +56,14 @@ int encrypt(unsigned char *plaintext,int plaintext_len,unsigned char *key,
         /* Clean up */
         EVP_CIPHER_CTX_free(ctx);
         return ciphertext_len;
-
 }
 int decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key,
                 unsigned char *iv,unsigned char *plaintext){
         EVP_CIPHER_CTX *ctx;
-
         int len;
-
         int plaintext_len;
-
         /* Create and initialise the context */
         if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
-
         /* Initialise the decryption operation. IMPORTANT - ensure you use a key
         * and IV size appropriate for your cipher
         * In this example we are using 256 bit AES (i.e. a 256 bit key). The
@@ -59,24 +71,21 @@ int decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key,
         * is 128 bits */
         if(1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv))
         handleErrors();
-
         /* Provide the message to be decrypted, and obtain the plaintext output.
         * EVP_DecryptUpdate can be called multiple times if necessary
         */
-        if(1 != EVP_DecryptUpdate(ctx, plaintext, &len, ciphertext, ciphertext_len))
+        if(1 != EVP_DecryptUpdate(ctx, plaintext, &len, ciphertext, 
+                                ciphertext_len))
         handleErrors();
         plaintext_len = len;
-
         /* Finalise the decryption. Further plaintext bytes may be written at
         * this stage.
         */
         if(1 != EVP_DecryptFinal_ex(ctx, plaintext + len, &len)) handleErrors();
         plaintext_len += len;
-
         /* Clean up */
         EVP_CIPHER_CTX_free(ctx);
         return plaintext_len;
-
 }
 
 int start(unsigned char *inputkey){
@@ -86,34 +95,31 @@ int start(unsigned char *inputkey){
         unsigned char *iv = (unsigned char *)"01234567890123456";
 
         /* Message to be encrypted */
-        unsigned char *plaintext =
-                (unsigned char *)"The quick brown fox jumps over the lazy dog";
         /* Buffer for ciphertext. Ensure the buffer is long enough for the
         * ciphertext which may be longer than the plaintext, dependant on the
         * algorithm and mode
         */
-        unsigned char ciphertext[1024*128];
-
+        unsigned char ciphertext[1000000];
+        //unsigned char *plaintext =
+                //(unsigned char *)"The quick brown fox jumps over the lazy dog";
         /* Buffer for the decrypted text */
-        unsigned char decryptedtext[128];
+        unsigned char decryptedtext[10000000];
 
-        int decryptedtext_len, ciphertext_len;
-
+        int decryptedtext_len;
+        int ciphertext_len;
         /* Initialise the library */
         ERR_load_crypto_strings();
         OpenSSL_add_all_algorithms();
         OPENSSL_config(NULL);
-
         /* Encrypt the plaintext */
-        ciphertext_len = encrypt (plaintext, strlen ((char *)plaintext), key, iv,
-                            ciphertext);
+        ciphertext_len = encrypt (key, iv, ciphertext);
         /* Do something useful with the ciphertext here */
         printf("Ciphertext is:\n");
         BIO_dump_fp (stdout, (const char *)ciphertext, ciphertext_len);
 
         /* Decrypt the ciphertext */
         decryptedtext_len = decrypt(ciphertext, ciphertext_len, key, iv,
-        decryptedtext);
+                        decryptedtext);
 
         /* Add a NULL terminator. We are expecting printable text */
         decryptedtext[decryptedtext_len] = '\0';
