@@ -3,7 +3,7 @@
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <string>
-
+using namespace std;
 void handleErrors(void){
         ERR_print_errors_fp(stderr);
         abort();
@@ -13,6 +13,7 @@ int encrypt(unsigned char *plaintext,int plaintext_len,unsigned char *key,
         EVP_CIPHER_CTX *ctx;
         int len;
         int ciphertext_len;
+        printf("Encrypting with key %s\n",key);
         /* Create and initialise the context */
         if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
         /* Initialise the encryption operation. IMPORTANT - ensure you use a key
@@ -72,7 +73,6 @@ int decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *key,
 
         /* Clean up */
         EVP_CIPHER_CTX_free(ctx);
-
         return plaintext_len;
 
 }
@@ -84,14 +84,13 @@ int start(unsigned char *inputkey){
         unsigned char *iv = (unsigned char *)"01234567890123456";
 
         /* Message to be encrypted */
-        //unsigned char *plaintext =
-                //(unsigned char *)"The quick brown fox jumps over the lazy dog";
-        unsigned char *plaintext = (unsigned char *)key;
+        unsigned char *plaintext =
+                (unsigned char *)"The quick brown fox jumps over the lazy dog";
         /* Buffer for ciphertext. Ensure the buffer is long enough for the
         * ciphertext which may be longer than the plaintext, dependant on the
         * algorithm and mode
         */
-        unsigned char ciphertext[128];
+        unsigned char ciphertext[1024*128];
 
         /* Buffer for the decrypted text */
         unsigned char decryptedtext[128];
@@ -106,7 +105,6 @@ int start(unsigned char *inputkey){
         /* Encrypt the plaintext */
         ciphertext_len = encrypt (plaintext, strlen ((char *)plaintext), key, iv,
                             ciphertext);
-
         /* Do something useful with the ciphertext here */
         printf("Ciphertext is:\n");
         BIO_dump_fp (stdout, (const char *)ciphertext, ciphertext_len);

@@ -35,7 +35,6 @@ int main(int argc, char *argv[]){
         for (int i=0;i<password.length();i++){
                 userpassword[i] = password[i];
         }
-        
         unsigned char *inputkey = (unsigned char *)userpassword;
         start(inputkey);
         //Check Password Length
@@ -43,7 +42,6 @@ int main(int argc, char *argv[]){
                 cerr<<"Password Length should be greater than 16 Characters";
                 exit(0);
         }
-
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
         if (sockfd < 0) 
                 error("ERROR opening socket");
@@ -60,7 +58,6 @@ int main(int argc, char *argv[]){
         if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
                 error("ERROR connecting");
         while (1){
-
                 bzero(buffer,256);
                 fgets(buffer,255,stdin);
                 n = write(sockfd,buffer,strlen(buffer));
