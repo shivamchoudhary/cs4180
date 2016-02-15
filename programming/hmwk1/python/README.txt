@@ -29,5 +29,8 @@ Error Messages     : Error Messages are Self Explanatory.
 Verification Passed: When the Signed Hash matches.
 Verification Failed: When the Signed Hash does not match.
 
-
-
+*References:
+        1) Python's Pycrypto Module Documentation 
+        https://pythonhosted.org/pycrypto/Crypto.Signature.PKCS1_PSS-module.html
+        2) Python's Socket Module Documentation
+        https://docs.python.org/2/library/socket.html
