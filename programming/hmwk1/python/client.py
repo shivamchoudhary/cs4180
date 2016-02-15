@@ -3,11 +3,12 @@ import argparse
 import sys
 import os, random, struct
 import Common
-import json
 from Crypto.Signature import PKCS1_PSS
+from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 import hashlib
 from Crypto.Hash import SHA256
+import json
 class Client(object):
     
     def __init__(self,password,filename,servername,port):
@@ -30,19 +31,47 @@ class Client(object):
         self.sign()
 
     def encrypt_file(self):
-        Common.encrypt_file('shivamchoudhary1','test.txt')
-    def read_file(self):
-        with open('test.txt.enc','rb') as fname:
-            data = fname.read()
-        return data
-    def send_data(self):
-        data  = self.read_file()
-        self.s.sendall(str(data))
+        """
+        Encryption Wrapper from Client class.
+        Encrypts the input file and creates an output file <filename.enc>
+        """
+        Common.encrypt_file(self.password,self.filename)
     
-    def rsa(self):
-        Common.gen_rsa('client')
+    def send_data(self):
+        with open('test.txt.enc') as infile:
+            d = infile.read(1024)
+            while d:
+                self.s.sendall(d)
+                d = infile.read(1024)
+            print "File sending complete!! Sending AES Keys"
+            self.s.close()
+            self.sendsign()
+    def sendsign(self):
+        self.s1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s1.connect((self.servername,self.port))
+        
+        # signature = self.sign()
+        key = self.encryptkey()
+        self.s1.sendall(key)
+        signature = self.sign()
+        self.s1.sendall(signature)
+        self.s1.close()
 
+    def encryptkey(self):
+        key = RSA.importKey(open('server_public.pem').read())
+        cipher =PKCS1_OAEP.new(key)
+        ciphertext = cipher.encrypt(self.password)
+        return ciphertext
+    def rsa(self):
+        """
+        RSA wrapper. If the file <client_private.pem> or <client_public.pem>
+        exists,does not creates them.
+        """
+        Common.gen_rsa('client')
     def sign(self):
+        """
+        Signs the SHA256 hash of the file contents with client's private key.
+        """
         with open(self.filename) as file:
             message = file.read()
         key = RSA.importKey(open('client_private.pem').read())
@@ -50,7 +79,7 @@ class Client(object):
         h.update(message)
         signer = PKCS1_PSS.new(key)
         signature = signer.sign(h)
-        
+        return signature
 def sanity_check(password,filename,servername,port):
     """
     Sanity Check for the System.
