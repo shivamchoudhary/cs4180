@@ -31,6 +31,13 @@ Verification Passed: When the Signed Hash matches.
 Verification Failed: When the Signed Hash does not match.
 Keys Exist         : When the Keys exist the method RSA_gen(mode) from Common is
                      not called.
+
+*Steps used to generate RSA Keys:
+The File Common.py contains a helper function gen_rsa(mode) which is used to 
+generate keys for both Client and Server. The key is 2048 bit Modulus and is 
+stored in .PEM format,furthermore depending on mode(Client/server) the module
+appends the name with server_private.PEM etc so that they can be distinguised.
+
 *References:
         1) Python's Pycrypto Module Documentation 
         https://pythonhosted.org/pycrypto/Crypto.Signature.PKCS1_PSS-module.html
