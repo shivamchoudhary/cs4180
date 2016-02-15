@@ -1,6 +1,11 @@
 "Programming Assignment 1"
 ==========================
 
+Note: The clic machines did not have the Latest Version of pycrypto so the 
+program won't run on clic machines. Please test it on VM with an updated
+version of pycrypto.
+
+
 *How to Run?
 1)Use the Makefile,seriously its good in the below order.
 2)make server (for running in trusted mode) or make userver (for running in 
