@@ -3,7 +3,8 @@
 
 *How to Run?
 1)Use the Makefile,seriously its good in the below order.
-2)make server
+2)make server (for running in trusted mode) or make userver (for running in 
+        untrusted mode with Fakefile)
 3)make client
 If want to specify the parameters manually then follow the following format.
 4)python server.py <Port> <Mode> <Server Private Key filename> 
@@ -28,7 +29,8 @@ server_public.pem  : Server's 2048 bit RSA Public Key.
 Error Messages     : Error Messages are Self Explanatory.
 Verification Passed: When the Signed Hash matches.
 Verification Failed: When the Signed Hash does not match.
-
+Keys Exist         : When the Keys exist the method RSA_gen(mode) from Common is
+                     not called.
 *References:
         1) Python's Pycrypto Module Documentation 
         https://pythonhosted.org/pycrypto/Crypto.Signature.PKCS1_PSS-module.html

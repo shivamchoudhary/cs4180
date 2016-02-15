@@ -36,6 +36,7 @@ class Server(object):
             serversocket.bind((self.host,self.port))
         except socket.error as error:
             print ("Socket binding failed with %s",error)
+            exit()
         # Allowing only one(1) Client to connect.
         count=0
         while True:
@@ -162,11 +163,15 @@ def main():
     parser.add_argument("fcpublic_key",type=str,help="Client's Public Key in, "
             ".pem format")
     args = parser.parse_args()
-    if sanity_check(args.port,args.mode,args.fsprivate_key,args.fspublic_key,
+    try:
+        if sanity_check(args.port,args.mode,args.fsprivate_key,args.fspublic_key,
             args.fcpublic_key):
-        server = Server(args.port,args.mode,args.fsprivate_key,
-                args.fspublic_key,args.fcpublic_key)
-    else:
+            server = Server(args.port,args.mode,args.fsprivate_key,
+                    args.fspublic_key,args.fcpublic_key)
+        else:
+            exit()
+    except KeyboardInterrupt:
+        print "Got it!! Bye"
         exit()
 if __name__=="__main__":
     main()
