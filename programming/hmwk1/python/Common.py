@@ -1,28 +1,13 @@
+__author__  = "Shivam Choudhary"
+__uni__     = "sc3973"
+
 import struct
 import os, random, struct
 from Crypto.Cipher import AES
 import hashlib
 from Crypto.PublicKey import RSA
-def send_msg(sock, msg):
-    msg = struct.pack('>I', len(msg)) + msg
-    sock.sendall(msg)
-
-def recv_msg(sock):
-    raw_msglen = recvall(sock, 4)
-    if not raw_msglen:
-        return None
-    msglen = struct.unpack('>I', raw_msglen)[0]
-    return recvall(sock, msglen)
-
-def recvall(sock, n):
-    data = ''
-    while len(data) < n:
-        packet = sock.recv(n - len(data))
-        if not packet:
-            return None
-        data += packet
-    return data
-
+import json
+import base64
 
 
 def encrypt_file(key, in_filename, out_filename=None, chunksize=64*1024):
@@ -70,8 +55,8 @@ def decrypt_file(key, in_filename, out_filename=None, chunksize=24*1024):
         given key. Parameters are similar to encrypt_file,
         with one difference: out_filename, if not supplied
         will be in_filename without its last extension
-        (i.e. if in_filename is 'aaa.zip.enc' then
-        out_filename will be 'aaa.zip')
+        (i.e. if in_filename is 'test.txt.enc' then
+        out_filename will be 'test.txt')
     """
     if not out_filename:
         out_filename = os.path.splitext(in_filename)[0]
@@ -88,14 +73,6 @@ def decrypt_file(key, in_filename, out_filename=None, chunksize=24*1024):
                 outfile.write(decryptor.decrypt(chunk))
             outfile.truncate(origsize)
 
-
-def gen_sha(fname):
-    with open(fname) as f:
-        m = hashlib.sha256()
-        m.update(f.read())
-        sha = m.digest()
-        print sha
-
 def gen_rsa(mode):
     """
     Generates RSA Key Pairs.
@@ -109,11 +86,10 @@ def gen_rsa(mode):
     if os.path.isfile(RSA_publicname):
         print "Keys Exist!! Not Generating"
         return
-    private = RSA.generate(2048)
+    key = RSA.generate(2048)
+    publickey = key.publickey()
+    private_key = key
     f = open(RSA_privatename,'w')
-    f.write(private.exportKey('PEM'))
-    public = RSA_privatename.publickey()
-    f = open(RSA_publicname,'w')
-    f.write(public.exportKey('PEM'))
-
-
+    f.write(private_key.exportKey('PEM'))
+    f1 = open(RSA_publicname,'w')
+    f1.write(publickey.exportKey('PEM'))
