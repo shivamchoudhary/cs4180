@@ -1,4 +1,8 @@
 client:
-	python client.py shivamchoudhary1 test.txt localhost 4180 RSA
+	python client.py 1234567891011111 test.txt localhost 4180 client_private.pem client_public.pem server_public.pem
+
 server:
-	python server.py 4180
+	python server.py 4180 t server_private.pem server_public.pem client_public.pem
+
+clean:
+	rm *.enc
