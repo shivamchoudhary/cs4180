@@ -1,9 +1,12 @@
 "COMS 4180 Network Security Programming Assignment 2"
 =====================================================
 
+File Certificate Exchange.png is wireshark screenshot of Certificate Exchange. 
+
 *Warning:
         All Certificates must be in the same folder. Names can be changed but 
         don't put CA into Private Key and expect it work,it just won't.
+
 *How to Run?
 
 Method 1:- 
