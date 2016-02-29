@@ -17,9 +17,15 @@ class Server(object):
     """ Main Server Object listening on a port.
     """
 
-    def __init__(self, port,host=None):
+    def __init__(self, fcca_cert, fsCert, fsKey, port, host=None):
         """
         Initializing the Server Socket and binding it to the port.
+            fcca_cert:
+                Certificate Authority for Client.
+            fsCert:
+                Server Certificate
+            fsKey:
+                Server Private Key
             host:
                 IPV4 address on which the server is listening.
             port:
@@ -44,9 +50,9 @@ class Server(object):
         except socket.error as error:
             print ("Socket Binding Failed %s" %error)
             exit()
-        self.start()
+        self.start(fcca_cert, fsCert, fsKey)
 
-    def start(self):
+    def start(self,fcca_cert,fsCert,fsKey):
         """Start listening and recieving. Create a context for Signal handling.
             For now it just captures ctrl-c events.
         """
@@ -56,10 +62,10 @@ class Server(object):
             (self.clientsocket, self.clientaddress) = self.serversocket.accept()
             connstream = ssl.wrap_socket(self.clientsocket,
                     server_side = True,
-                    ca_certs = "client.crt",
+                    ca_certs = fcca_cert,
                     cert_reqs = ssl.CERT_REQUIRED,
-                    certfile = "server.crt",
-                    keyfile = "server.key")
+                    certfile = fsCert,
+                    keyfile = fsKey)
             try:
                 self.deal_with_client(connstream)
             except Exception as e:
@@ -91,7 +97,7 @@ class Server(object):
                     fhash = open("server_files/"+filename+".sha256").read()
                     Common.send_msg(connstream,fhash)
                 else:
-                    Common.send_msg(connstream,"ERROR:404 File Not Found")
+                    Common.send_msg(connstream,"Error:404 File Not Found")
             if not mode:
                 break
         
@@ -119,10 +125,14 @@ def main():
         eg: fsCert/fcCert is server's/client's certificate.
     """
     parser = argparse.ArgumentParser(description="I am Server")
+    parser.add_argument("fcca_cert", type=str, help="Client's Ceritificate")
+    parser.add_argument("fsCert",type=str, help="Server's certfile")
+    parser.add_argument("fsKey", type=str, help= "Server's private key")
     parser.add_argument("port", type=int, help="<int> Port number for listening")
     parser.add_argument("host", type=str, help="IP/Host address of the server")
     args = parser.parse_args()
-    server = Server(args.port , args.host)
+    server = Server(args.fcca_cert, args.fsCert, args.fsKey, 
+            args.port, args.host)
 
 
 

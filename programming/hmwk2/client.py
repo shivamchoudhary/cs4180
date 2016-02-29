@@ -19,7 +19,20 @@ from Crypto.Cipher import AES
 """
 class Client(object):
 
-    def __init__(self,port,host=None):
+    def __init__(self,fsca_cert,fcCert,fcKey, port, host=None):
+        """ Client Class for setting up the TLS/SSL socket and keys
+            fsca_cert:
+                file server CERTIFICATE AUTHORITY
+            fcCert:
+                file client Certificate
+            fckey:
+                file client Private RSA KEY
+            port:
+                port number on which server is listening.
+            host:
+                Host IP address
+                
+        """
         self.port = port
 
         if host:
@@ -28,10 +41,10 @@ class Client(object):
             self.host="127.0.0.1"
         self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         ssl_sock = ssl.wrap_socket(self.clientsocket,
-                ca_certs="server.crt",
+                ca_certs=fsca_cert,
                 cert_reqs=ssl.CERT_REQUIRED,
-                certfile="client.crt",
-                keyfile="client.key") # Reference: 1
+                certfile=fcCert,
+                keyfile=fcKey) # Reference: 1
         try:
             ssl_sock.connect((self.host,self.port))
         except socket.error as error:
@@ -90,9 +103,9 @@ class Cli(cmd.Cmd):
         """
         args = line.split(" ")
         if len(args)==2:
-            #case put <filename> <encflag = N>
+            #case get <filename> <encflag = N>
             filename, encflag = line.split(" ")
-            if encflag!=N:
+            if encflag!='N':
                 print "Error: Wrong Flag"
                 self.cmdloop()
         elif len(args)==3:
@@ -104,30 +117,42 @@ class Cli(cmd.Cmd):
             if encflag!='E':
                 print "Wrong Flag"
                 self.cmdloop()
-            Common.send_msg(self.clientsocket,"get")
-            Common.send_msg(self.clientsocket, filename)
-            status = Common.recv_msg(self.clientsocket)
-            if status=="OK":
-                data = Common.recv_msg(self.clientsocket)
-                fhash = Common.recv_msg(self.clientsocket)
-                with open('tmp_client/'+filename+".enc","w") as f:
-                    f.write(data)
-                with open('tmp_client/'+filename+".sha256","w") as f:
-                    f.write(fhash)
-                fname = 'tmp_client/'+filename+".enc"
+        else:
+            print "Wrong Number of Arguments"
+            self.cmdloop()
+        Common.send_msg(self.clientsocket,"get")
+        Common.send_msg(self.clientsocket, filename)
+        status = Common.recv_msg(self.clientsocket)
+        if status=="OK":
+            data = Common.recv_msg(self.clientsocket)
+            fhash = Common.recv_msg(self.clientsocket)
+            with open('tmp_client/'+filename+".enc","w") as f:
+                f.write(data)
+            with open('tmp_client/'+filename+".sha256","w") as f:
+                f.write(fhash)
+            fname = 'tmp_client/'+filename+".enc"
+            if encflag=='E':
                 if not Common.decrypt_file(password, fname):
+                    #File was not encrypted to begin with!!
                     print ("Error: decryption of %s failed, was file encrypted?"
                             %filename)
                 else:
+                    #File decrypted check hash
                     filehash = Common.gen_hash('tmp_client/'+filename)
                     if fhash==filehash:
-                        print "retrieval of %s complete"%filename
+                        print "retrieval of %s complete" %filename
                     else:
                         print "Error: SHA256 Hash Match Failed!!"
             else:
-                #Server Error Occured.
-                print status
-    
+                filehash = Common.gen_hash('tmp_client/'+filename)
+                if fhash==filehash:
+                    print "retrieval of %s complete "%filename
+                else:
+                    print "Error: SHA256 Hash Match Failed!!"
+        else:
+            #Server Error Occured.
+            print status
+
     def do_put(self,line):
         """Puts the file into the server
             filename        : The filename should be in same folder.
@@ -172,10 +197,14 @@ class Cli(cmd.Cmd):
 
 def main():
     parser = argparse.ArgumentParser(description="I am Client")
+    parser.add_argument("fsca_cert",type=str, help= "Root CA for server")
+    parser.add_argument("fcCert",type=str, help="Client Certificate")
+    parser.add_argument("fcKey",type=str, help="Client's Private RSA Key")
     parser.add_argument("port", type=int, help="Server's Port Number")
     parser.add_argument("host", type=str, help="Client's IP address")
     args = parser.parse_args()
-    client = Client(args.port, args.host)
+    client = Client(args.fsca_cert, args.fcCert, args.fcKey, 
+            args.port, args.host)
 
 if __name__=="__main__":
     main()
