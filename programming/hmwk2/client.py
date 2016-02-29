@@ -82,24 +82,28 @@ class Cli(cmd.Cmd):
         return True
 
     def do_get(self,line):
-        """ Tries to get the file from the server!!
+        """ Gets the file from the server!!
             line:
-                <filename> <encflag> <opt password>
+                filename        : The filename to be retrieved.
+                <encflag>       : "E" or "N", whether the file was encrypted.
+                <opt password>  : Password<8 Characters> for decrypting the file.
         """
         args = line.split(" ")
         if len(args)==2:
+            #case put <filename> <encflag = N>
             filename, encflag = line.split(" ")
+            if encflag!=N:
+                print "Error: Wrong Flag"
+                self.cmdloop()
         elif len(args)==3:
+            #case get <filename> <encflag = E> <password>
             filename, encflag, password = line.split(" ")
-            if len(password)<8:
+            if len(password)!=8:
                 print "Password is short <8 Characters>"
-                pass
-            if (encflag!='E' or 'N'):
+                self.cmdloop()
+            if encflag!='E':
                 print "Wrong Flag"
-                pass
-        else:
-            print "Invalid Usage of put!! put <filename> <encflag> <opt pwd> "
-        if self.get_sanitycheck(encflag,password):
+                self.cmdloop()
             Common.send_msg(self.clientsocket,"get")
             Common.send_msg(self.clientsocket, filename)
             status = Common.recv_msg(self.clientsocket)
@@ -111,7 +115,7 @@ class Cli(cmd.Cmd):
                 with open('tmp_client/'+filename+".sha256","w") as f:
                     f.write(fhash)
                 fname = 'tmp_client/'+filename+".enc"
-                if not self.decrypt_file(password, fname):
+                if not Common.decrypt_file(password, fname):
                     print ("Error: decryption of %s failed, was file encrypted?"
                             %filename)
                 else:
@@ -119,46 +123,10 @@ class Cli(cmd.Cmd):
                     if fhash==filehash:
                         print "retrieval of %s complete"%filename
                     else:
-                        print "ERROR: SHA256 Hash Match Failed!!"
+                        print "Error: SHA256 Hash Match Failed!!"
             else:
+                #Server Error Occured.
                 print status
-    
-    def decrypt_file(self,key, in_filename, out_filename=None, 
-            chunksize=24*1024):
-        """ Decrypts a file using AES (CBC mode) with the
-            given key. Parameters are similar to encrypt_file,
-            with one difference: out_filename, if not supplied
-            will be in_filename without its last extension
-            (i.e. if in_filename is 'test.txt.enc' then
-            out_filename will be 'test.txt')
-        """
-        random.seed(key) #Seed using password.
-        rand_key = format(random.getrandbits(16) + (1 << 16), '16b') #Ref 1
-        key = rand_key[:16] #Take only 16 bits for AES Key.
-        if not out_filename:
-            out_filename = os.path.splitext(in_filename)[0]
-        try:
-            with open(in_filename, 'rb') as infile:
-                origsize = struct.unpack('<Q', infile.read(
-                    struct.calcsize('Q')))[0]
-                iv = infile.read(16)
-                decryptor = AES.new(key, AES.MODE_CBC, iv)
-                with open(out_filename, 'wb') as outfile:
-                    while True:
-                        chunk = infile.read(chunksize)
-                        if len(chunk) == 0:
-                            break
-                        outfile.write(decryptor.decrypt(chunk))
-                    outfile.truncate(origsize)
-            return True
-        except Exception as e:
-            return False
-            # print ("Error: decryption of %s failed, was file encrypted?"
-                    # %in_filename)
-            # return False
-
-    
-    
     
     def do_put(self,line):
         """Puts the file into the server
