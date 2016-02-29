@@ -10,6 +10,8 @@ import pprint
 import json
 import binascii
 import struct
+from Crypto.Cipher import AES
+
 """References
     1) http://carlo-hamalainen.net/blog/2013/1/24/python-ssl-socket-echo-test-
     with-self-signed-certificate (For setting up the SSL Socket Context)
@@ -51,13 +53,11 @@ class Cli(cmd.Cmd):
     
     def __init__(self,clientsocket):
         cmd.Cmd.__init__(self)
-        self.SUPPORTED_COMMANDS = ['get','put','stop']
         self.prompt     = ">"
         self.doc_header = "Secure TLS Shell"
         self.ruler      = "-"
         self.intro      = 'Welcome to 2 Way Secure TLS Shell !!'
         self.clientsocket = clientsocket 
-        self.encflag = False
         signal.signal(signal.SIGINT, self.handler)# Signal Interrupt Handler. 
     
     def handler(self, signum, frame):
@@ -67,28 +67,38 @@ class Cli(cmd.Cmd):
         self.clientsocket.close()
         exit()
 
-    
     def cmdloop(self):
         try:
             cmd.Cmd.cmdloop(self)
         except Exception as e:
             print "Wrong Syntax use help <command> to find correct usage.",e
             self.cmdloop()
-
+    
     def default(self, line):
-        print "Command Not recognized,try help or press <tab>"
+        print "Error: Invalid commands, options are 'get' 'put' 'stop'"
     
     def do_stop(self,line):
-        print "Okay Got IT!!"
+        print "Closing Socket!! Please wait"
         return True
 
     def do_get(self,line):
         """ Tries to get the file from the server!!
+            line:
+                <filename> <encflag> <opt password>
         """
-        try:
+        args = line.split(" ")
+        if len(args)==2:
+            filename, encflag = line.split(" ")
+        elif len(args)==3:
             filename, encflag, password = line.split(" ")
-        except Exception as e:
-            pass
+            if len(password)<8:
+                print "Password is short <8 Characters>"
+                pass
+            if (encflag!='E' or 'N'):
+                print "Wrong Flag"
+                pass
+        else:
+            print "Invalid Usage of put!! put <filename> <encflag> <opt pwd> "
         if self.get_sanitycheck(encflag,password):
             Common.send_msg(self.clientsocket,"get")
             Common.send_msg(self.clientsocket, filename)
@@ -100,71 +110,97 @@ class Cli(cmd.Cmd):
                     f.write(data)
                 with open('tmp_client/'+filename+".sha256","w") as f:
                     f.write(fhash)
-                filename = 'tmp_client/'+filename+".enc"
-                Common.decrypt_file(password, filename)
-                filehash = Common.gen_hash(filename)
-                if fhash==filehash:
-                    print "Hash MAtches"
+                fname = 'tmp_client/'+filename+".enc"
+                if not self.decrypt_file(password, fname):
+                    print ("Error: decryption of %s failed, was file encrypted?"
+                            %filename)
                 else:
-                    print "hash failed:"
+                    filehash = Common.gen_hash('tmp_client/'+filename)
+                    if fhash==filehash:
+                        print "retrieval of %s complete"%filename
+                    else:
+                        print "ERROR: SHA256 Hash Match Failed!!"
             else:
                 print status
-    def get_sanitycheck(self,encflag,password=None):
-        if not (encflag=="E" or encflag=="N"):
-            print "The encryption flag should be either E or N"
+    
+    def decrypt_file(self,key, in_filename, out_filename=None, 
+            chunksize=24*1024):
+        """ Decrypts a file using AES (CBC mode) with the
+            given key. Parameters are similar to encrypt_file,
+            with one difference: out_filename, if not supplied
+            will be in_filename without its last extension
+            (i.e. if in_filename is 'test.txt.enc' then
+            out_filename will be 'test.txt')
+        """
+        random.seed(key) #Seed using password.
+        rand_key = format(random.getrandbits(16) + (1 << 16), '16b') #Ref 1
+        key = rand_key[:16] #Take only 16 bits for AES Key.
+        if not out_filename:
+            out_filename = os.path.splitext(in_filename)[0]
+        try:
+            with open(in_filename, 'rb') as infile:
+                origsize = struct.unpack('<Q', infile.read(
+                    struct.calcsize('Q')))[0]
+                iv = infile.read(16)
+                decryptor = AES.new(key, AES.MODE_CBC, iv)
+                with open(out_filename, 'wb') as outfile:
+                    while True:
+                        chunk = infile.read(chunksize)
+                        if len(chunk) == 0:
+                            break
+                        outfile.write(decryptor.decrypt(chunk))
+                    outfile.truncate(origsize)
+            return True
+        except Exception as e:
             return False
-        if (encflag=="E"):
-            if len(password)!=8:
-                print ("Specify password <8 Characters> to decrypt the file")
-                return False
-        if (encflag=="N"):
-            if password:
-                print ("You specified not to decrypt but gave a password")
-                return False
-        return True
+            # print ("Error: decryption of %s failed, was file encrypted?"
+                    # %in_filename)
+            # return False
+
+    
+    
+    
     def do_put(self,line):
         """Puts the file into the server
             filename        : The filename should be in same folder.
             encflag         : "E" or "N", whether encryption is required or not
             opt<password>   : Password<8 Characters> for encrypting the file.
         """
-        try:
-            filename,encflag,password = line.split(" ")
-        except Exception as e:
-            pass
-        if self.sanity_check(filename,encflag,password):
+        args = line.split(" ")
+        if len(args)==2:
+            #case put <filename> <encflag>
+            filename, encflag = line.split(" ")
+            if not os.path.isfile(filename):
+                print "Error: File not found. Should be in same folder!"
+                self.cmdloop()
+            if encflag!='N':
+                print "Wrong parameter"
+                self.cmdloop()
+        elif len(args)==3:
+            #case put <filename> <encflag> <password>
+            filename ,encflag, password = line.split(" ")
+            if not os.path.isfile(filename):
+                print "Error: File not found. Should be in same folder!"
+                self.cmdloop()
+            if encflag!="E" or len(password)!=8:
+                print "Wrong Flag/password"
+                self.cmdloop()
+        fhash = Common.gen_hash(filename)
+        # Hash generated send it now!
+        if encflag=="E":
             Common.encrypt_file(password,filename) 
-            fhash = Common.gen_hash(filename)
-            #File has been encrypted try to serialize and send it.
             with open(filename+".enc") as f:
                 msg = f.read()
-                
-            Common.send_msg(self.clientsocket,"put") #Set mode to put
-            Common.send_msg(self.clientsocket,msg)
-            Common.send_msg(self.clientsocket,fhash)
-            Common.send_msg(self.clientsocket,filename)
-            #Wait for Error from Server
-            print Common.recv_msg(self.clientsocket) 
-            self.encflag = False
-            
-    def sanity_check(self,filename,encflag,password=None):
-        """ Sanity Checks for the Inputs
-        """
-        if not os.path.isfile(filename):
-            print "The file to be put should be in the same folder."
-            return False
-        if not (encflag=="E" or encflag=="N"):
-            print "The encryption flag should be either E or N"
-            return False
-        if (encflag=="E"):
-            if len(password)!=8:
-                print ("Specify password <8 characters> to encrypt the file") 
-                return False
-            else:
-                self.encflag=True
-        return True
-
-    
+        else:
+            with open(filename) as f:
+                msg = f.read()
+        Common.send_msg(self.clientsocket,"put") #Set mode to put
+        Common.send_msg(self.clientsocket,msg)
+        Common.send_msg(self.clientsocket,fhash)
+        Common.send_msg(self.clientsocket,filename)
+        #Wait for Response from Server
+        print Common.recv_msg(self.clientsocket) 
+        
 
 def main():
     parser = argparse.ArgumentParser(description="I am Client")
