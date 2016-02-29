@@ -37,7 +37,31 @@ Method 2:-
         As usual run the server first else you will get an error "Is the Server\
                 running?"
  
-Supported Commands and Formats:
+*Supported Commands and Formats:
         1) put <filename> <enc-flag> <opt-password>
                 The command would encrypt the file and put the file to the 
                 server.
+        2) get <filename> <enc-flag> <opt-password>
+                Tries to get the file from the server and puts it in /tmp_client
+                directory
+        3) stop 
+                Closes the socket and exits.
+        4) The server stores the file and its SHA256 hash in server_files folder.
+
+
+* Generating Certificates:
+        I used openssl cert generation tool to generate the certificates.
+        a) For server:-
+        openssl genrsa -des3 -out server.orig.key 2048
+	openssl rsa -in server.orig.key -out server.key
+	openssl req -new -key server.key -out server.csr
+	openssl x509 -req -days 365 -in server.csr -signkey \
+	server.key -out server.crt
+        
+        b) For client:-
+        openssl genrsa -des3 -out client.orig.key 2048
+	openssl rsa -in client.orig.key -out client.key
+	openssl req -new -key client.key -out client.csr
+	openssl x509 -req -days 365 -in client.csr -signkey \
+	client.key -out client.crt
+
