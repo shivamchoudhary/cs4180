@@ -6,11 +6,23 @@ import os, random, struct
 from Crypto.Cipher import AES
 import hashlib
 from Crypto.PublicKey import RSA
+from OpenSSL import crypto, SSL
+import time
+from Crypto.Hash import SHA256
+import binascii
+""" References
+    1) http://stackoverflow.com/questions/17125237/getrandbits-does-not-produce-
+    constant-length-numbers (Inspired by this method)
+"""
 
+def message(filename):
+    with open (filename) as f:
+        msg = f.read()
+    hexdata = binascii.hexlify(msg)
+    return hexdata
 
 def encrypt_file(key, in_filename, out_filename=None, chunksize=64*1024):
-    """ 
-    Encrypts a file using AES (CBC mode) with the given key.
+    """ Encrypts a file using AES (CBC mode) with the given key.
         key:
             The encryption key - a string that must be
             either 16, 24 or 32 bytes long. Longer keys
@@ -28,9 +40,9 @@ def encrypt_file(key, in_filename, out_filename=None, chunksize=64*1024):
             sizes can be faster for some files and machines.
             chunksize must be divisible by 16.
     """
-    random.seed(key)
-    rand_key = format(random.getrandbits(16) + (1 << 16), '16b')
-    key = rand_key[:16]
+    random.seed(key) #Seed using password.
+    rand_key = format(random.getrandbits(16) + (1 << 16), '16b') #Ref 1
+    key = rand_key[:16] #Take only 16 bits for AES Key.
     if not out_filename:
         out_filename = in_filename + '.enc'
     iv = ''.join(chr(random.randint(0, 0xFF)) for i in range(16))
@@ -72,6 +84,11 @@ def decrypt_file(key, in_filename, out_filename=None, chunksize=24*1024):
             outfile.truncate(origsize)
 
 
-
+def gen_hash(filename):
+    with open(filename) as f:
+        message = f.read()
+    h = SHA256.new()
+    h.update(message)
+    return h.hexdigest()
 
 
