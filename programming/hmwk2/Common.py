@@ -9,17 +9,13 @@ from Crypto.PublicKey import RSA
 from OpenSSL import crypto, SSL
 import time
 from Crypto.Hash import SHA256
-import binascii
+import base64
+import socket
 """ References
     1) http://stackoverflow.com/questions/17125237/getrandbits-does-not-produce-
     constant-length-numbers (Inspired by this method)
 """
 
-def message(filename):
-    with open (filename) as f:
-        msg = f.read()
-    hexdata = binascii.hexlify(msg)
-    return hexdata
 
 def encrypt_file(key, in_filename, out_filename=None, chunksize=64*1024):
     """ Encrypts a file using AES (CBC mode) with the given key.
@@ -68,9 +64,11 @@ def decrypt_file(key, in_filename, out_filename=None, chunksize=24*1024):
         (i.e. if in_filename is 'test.txt.enc' then
         out_filename will be 'test.txt')
     """
+    random.seed(key) #Seed using password.
+    rand_key = format(random.getrandbits(16) + (1 << 16), '16b') #Ref 1
+    key = rand_key[:16] #Take only 16 bits for AES Key.
     if not out_filename:
         out_filename = os.path.splitext(in_filename)[0]
-
     with open(in_filename, 'rb') as infile:
         origsize = struct.unpack('<Q', infile.read(struct.calcsize('Q')))[0]
         iv = infile.read(16)
@@ -90,5 +88,23 @@ def gen_hash(filename):
     h = SHA256.new()
     h.update(message)
     return h.hexdigest()
+def send_msg(sock, msg):
+    msg = struct.pack('>I', len(msg)) + msg
+    sock.sendall(msg)
 
+def recv_msg(sock):
+    raw_msglen = recvall(sock, 4)
+    if not raw_msglen:
+        return None
+    msglen = struct.unpack('>I', raw_msglen)[0]
+    return recvall(sock, msglen)
+
+def recvall(sock, n):
+    data = ''
+    while len(data) < n:
+        packet = sock.recv(n - len(data))
+        if not packet:
+            return None
+        data += packet
+    return data
 

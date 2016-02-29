@@ -2,12 +2,17 @@
 
 __author__  = "Shivam Choudhary"
 __uni__     = "sc3973"
-
+import Common
 import signal
 import argparse
 import socket
 import signal
-
+import ssl
+import pprint
+import json
+import binascii
+import struct
+import os
 class Server(object):
     """ Main Server Object listening on a port.
     """
@@ -41,23 +46,55 @@ class Server(object):
             exit()
         self.start()
 
-
     def start(self):
         """Start listening and recieving. Create a context for Signal handling.
             For now it just captures ctrl-c events.
         """
         signal.signal(signal.SIGINT, self.handler)
         self.serversocket.listen(1)
-        (self.clientsocket, self.clientaddress) = self.serversocket.accept()
-
         while True:
-            data = self.clientsocket.recv(1024)
-            if not data:
-                print "Client Side has been closed!!"
+            (self.clientsocket, self.clientaddress) = self.serversocket.accept()
+            connstream = ssl.wrap_socket(self.clientsocket,
+                    server_side = True,
+                    ca_certs = "client.crt",
+                    cert_reqs = ssl.CERT_REQUIRED,
+                    certfile = "server.crt",
+                    keyfile = "server.key")
+            try:
+                self.deal_with_client(connstream)
+            except Exception as e:
+                print e
+            finally:
+                print ("Client has closed its socket!!")
+                connstream.close()
                 exit()
-    
-
-
+            
+    def deal_with_client(self,connstream):
+        while True:
+            mode = Common.recv_msg(connstream)
+            if mode=="put":
+                data = Common.recv_msg(connstream)
+                fhash = Common.recv_msg(connstream)
+                fname = Common.recv_msg(connstream)
+                with open ("server_files/"+fname,"w")as f:
+                    f.write(data)
+                with open("server_files/"+fname+".sha256","w") as f:
+                    f.write(fhash)
+                #send 200/OK to client
+                Common.send_msg(connstream,"Transfer of %s Complete" %fname)
+            if mode=="get":
+                filename = Common.recv_msg(connstream)
+                if os.path.exists("server_files/"+filename):
+                    data = open("server_files/"+filename).read()
+                    Common.send_msg(connstream,"OK")
+                    Common.send_msg(connstream,data)
+                    fhash = open("server_files/"+filename+".sha256").read()
+                    Common.send_msg(connstream,fhash)
+                else:
+                    Common.send_msg(connstream,"ERROR:404 File Not Found")
+            if not mode:
+                break
+        
     def handler(self,signum, frame):
         """
         For handling ctrl-c events.
@@ -86,6 +123,8 @@ def main():
     parser.add_argument("host", type=str, help="IP/Host address of the server")
     args = parser.parse_args()
     server = Server(args.port , args.host)
+
+
 
 if __name__=="__main__":
     main()
