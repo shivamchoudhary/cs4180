@@ -1,4 +1,7 @@
-TARFILES = Makefile client.py server.py Common.py 
+TARFILES = Makefile client.py server.py Common.py Certificate\ Exchange.png\
+	 client.crt client.csr client.key \
+	client.orig.key README.txt  server.crt server.csr server.key \
+	server.orig.key abc.txt x.dat
 port 		= 4119
 host 		= 127.0.0.1
 #Client Certificate Setup
@@ -13,8 +16,9 @@ fsKey		= server.key
 server_folder 	= server_files
 client_folder 	= tmp_client
 
-
 #Directives
+setup:
+	mkdir tmp_client && mkdir server_files
 client:
 	python client.py $(fsca_cert) $(fcCert) $(fcKey) $(port) $(host) 
 server:
@@ -35,3 +39,9 @@ gen_client:
 	openssl req -new -key client.key -out client.csr
 	openssl x509 -req -days 365 -in client.csr -signkey \
 	client.key -out client.crt
+
+sc3973_2.tar.gz:$(TARFILES)
+	mkdir sc3973
+	ln $(TARFILES) sc3973
+	tar zcf sc3973_2.tar.gz sc3973
+	rm -rf sc3973

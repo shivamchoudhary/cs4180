@@ -5,7 +5,6 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
 AES	Common.py	/^from Crypto.Cipher import AES$/;"	i
-AES	client.py	/^from Crypto.Cipher import AES$/;"	i
 Cli	client.py	/^class Cli(cmd.Cmd):$/;"	c
 Client	client.py	/^class Client(object):$/;"	c
 Common	client.py	/^import Common$/;"	i
@@ -14,7 +13,7 @@ RSA	Common.py	/^from Crypto.PublicKey import RSA$/;"	i
 SHA256	Common.py	/^from Crypto.Hash import SHA256$/;"	i
 SSL	Common.py	/^from OpenSSL import crypto, SSL$/;"	i
 Server	server.py	/^class Server(object):$/;"	c
-TARFILES	Makefile	/^TARFILES = Makefile client.py server.py Common.py $/;"	m
+TARFILES	Makefile	/^TARFILES = Makefile client.py server.py Common.py Certificate\\ Exchange.png\\$/;"	m
 __author__	Common.py	/^__author__  = "Shivam Choudhary"$/;"	v
 __author__	server.py	/^__author__  = "Shivam Choudhary"$/;"	v
 __init__	client.py	/^    def __init__(self,clientsocket):$/;"	m	class:Cli
@@ -25,16 +24,11 @@ __uni__	server.py	/^__uni__     = "sc3973"$/;"	v
 argparse	client.py	/^import argparse$/;"	i
 argparse	server.py	/^import argparse$/;"	i
 base64	Common.py	/^import base64$/;"	i
-binascii	client.py	/^import binascii$/;"	i
 binascii	server.py	/^import binascii$/;"	i
-ca_certs	test.py	/^                           ca_certs="server.crt",$/;"	v
-cert_reqs	test.py	/^                           cert_reqs=ssl.CERT_REQUIRED,$/;"	v
-certfile	test.py	/^                           certfile="client.crt",$/;"	v
 client_folder	Makefile	/^client_folder 	= tmp_client$/;"	m
 cmd	client.py	/^import cmd$/;"	i
 cmdloop	client.py	/^    def cmdloop(self):$/;"	m	class:Cli
 crypto	Common.py	/^from OpenSSL import crypto, SSL$/;"	i
-data	test.py	/^    data = ssl_sock.read()$/;"	v
 deal_with_client	server.py	/^    def deal_with_client(self,connstream):$/;"	m	class:Server
 decrypt_file	Common.py	/^def decrypt_file(key, in_filename, out_filename=None, chunksize=24*1024):$/;"	f
 default	client.py	/^    def default(self, line):$/;"	m	class:Cli
@@ -53,24 +47,19 @@ handler	client.py	/^    def handler(self, signum, frame):$/;"	m	class:Cli
 handler	server.py	/^    def handler(self,signum, frame):$/;"	m	class:Server
 hashlib	Common.py	/^import hashlib$/;"	i
 host	Makefile	/^host 		= 127.0.0.1$/;"	m
-json	client.py	/^import json$/;"	i
 json	server.py	/^import json$/;"	i
-keyfile	test.py	/^                           keyfile="client.key")$/;"	v
 main	client.py	/^def main():$/;"	f
 main	server.py	/^def main():$/;"	f
 os	Common.py	/^import os, random, struct$/;"	i
 os	client.py	/^import os$/;"	i
 os	server.py	/^import os$/;"	i
 port	Makefile	/^port 		= 4119$/;"	m
-pprint	client.py	/^import pprint$/;"	i
 pprint	server.py	/^import pprint$/;"	i
-pprint	test.py	/^import socket, ssl, pprint$/;"	i
 random	Common.py	/^import os, random, struct$/;"	i
 random	client.py	/^import random$/;"	i
 recv_msg	Common.py	/^def recv_msg(sock):$/;"	f
 recvall	Common.py	/^def recvall(sock, n):$/;"	f
 run	client.py	/^    def run(self,ssl_sock):$/;"	m	class:Client
-s	test.py	/^s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)$/;"	v
 send_msg	Common.py	/^def send_msg(sock, msg):$/;"	f
 server_folder	Makefile	/^server_folder 	= server_files$/;"	m
 signal	client.py	/^import signal$/;"	i
@@ -78,14 +67,11 @@ signal	server.py	/^import signal$/;"	i
 socket	Common.py	/^import socket$/;"	i
 socket	client.py	/^import socket$/;"	i
 socket	server.py	/^import socket$/;"	i
-socket	test.py	/^import socket, ssl, pprint$/;"	i
 ssl	client.py	/^import ssl$/;"	i
 ssl	server.py	/^import ssl$/;"	i
-ssl	test.py	/^import socket, ssl, pprint$/;"	i
-ssl_sock	test.py	/^ssl_sock = ssl.wrap_socket(s,$/;"	v
 start	server.py	/^    def start(self,fcca_cert,fsCert,fsKey):$/;"	m	class:Server
 struct	Common.py	/^import os, random, struct$/;"	i
 struct	Common.py	/^import struct$/;"	i
-struct	client.py	/^import struct$/;"	i
 struct	server.py	/^import struct$/;"	i
+sys	client.py	/^import sys$/;"	i
 time	Common.py	/^import time$/;"	i

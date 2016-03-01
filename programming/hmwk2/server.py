@@ -97,7 +97,8 @@ class Server(object):
                     fhash = open("server_files/"+filename+".sha256").read()
                     Common.send_msg(connstream,fhash)
                 else:
-                    Common.send_msg(connstream,"Error:404 File Not Found")
+                    Common.send_msg(connstream,"Error: %s was not retrieved"
+                            %filename)
             if not mode:
                 break
         

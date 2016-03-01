@@ -1,12 +1,22 @@
+
+__author__      = "Shivam Choudhary"
+__uni__         = "sc3973"
+
 "COMS 4180 Network Security Programming Assignment 2"
 =====================================================
 
-File Certificate Exchange.png is wireshark screenshot of Certificate Exchange. 
+* File Certificate Exchange.png is wireshark screenshot of Certificate Exchange. 
 
-*Warning:
-        All Certificates must be in the same folder. Names can be changed but 
+* Warning:
+        a) All Certificates must be in the same folder. Names can be changed but 
         don't put CA into Private Key and expect it work,it just won't.
+        b) Also server keeps it's files in the directory server_files and client
+        in tmp_client. Don't change them they are hardcoded.
 
+* Default Files:
+        There are files "x.dat" and "abc.txt" which are base 64 encoded and hex 
+        encoded respectively. They are random files generated using openssl.
+        They can be directly used for verifying that the server works.
 *How to Run?
 
 Method 1:- 

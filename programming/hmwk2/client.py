@@ -6,11 +6,7 @@ import os
 import random
 import Common
 import signal
-import pprint
-import json
-import binascii
-import struct
-from Crypto.Cipher import AES
+import sys
 
 """References
     1) http://carlo-hamalainen.net/blog/2013/1/24/python-ssl-socket-echo-test-
@@ -18,7 +14,6 @@ from Crypto.Cipher import AES
     2) https://docs.python.org/2/library/ssl.html#client-side-operation
 """
 class Client(object):
-
     def __init__(self,fsca_cert,fcCert,fcKey, port, host=None):
         """ Client Class for setting up the TLS/SSL socket and keys
             fsca_cert:
@@ -34,7 +29,6 @@ class Client(object):
                 
         """
         self.port = port
-
         if host:
             self.host= host
         else:
@@ -57,7 +51,8 @@ class Client(object):
             console.cmdloop()
         finally:
             ssl_sock.close()
-            exit()
+            sys.exit(0)
+
 
 class Cli(cmd.Cmd):
 
@@ -132,23 +127,38 @@ class Cli(cmd.Cmd):
                 f.write(fhash)
             fname = 'tmp_client/'+filename+".enc"
             if encflag=='E':
+                #Client assumes the file was encrypted.
                 if not Common.decrypt_file(password, fname):
                     #File was not encrypted to begin with!!
                     print ("Error: decryption of %s failed, was file encrypted?"
                             %filename)
+                    os.remove('tmp_client/'+filename+".sha256") # sha of file
+                    os.remove('tmp_client/'+filename+".enc") #enc file
                 else:
                     #File decrypted check hash
                     filehash = Common.gen_hash('tmp_client/'+filename)
                     if fhash==filehash:
                         print "retrieval of %s complete" %filename
                     else:
-                        print "Error: SHA256 Hash Match Failed!!"
+                        print ("Error: Computed hash of %s does not match "
+                        "retrieved hash" %filename)
+                        os.remove('tmp_client/'+filename)
+                    #Irrespecive of Match or not delete the hashed file.
+                    os.remove('tmp_client/'+filename+".sha256")
+                    os.remove('tmp_client/'+filename+".enc")
             else:
-                filehash = Common.gen_hash('tmp_client/'+filename)
+                #Client assumes no encryption was applied
+                filehash = Common.gen_hash('tmp_client/'+filename+".enc")
                 if fhash==filehash:
                     print "retrieval of %s complete "%filename
                 else:
-                    print "Error: SHA256 Hash Match Failed!!"
+                    print ("Error: Computed hash of %s does not match "
+                        "retrieved hash" %filename)
+                with open('tmp_client/'+filename,"w") as f:
+                    f.write(data)
+                os.remove('tmp_client/'+filename+".sha256")
+
+                os.remove('tmp_client/'+filename+".enc")
         else:
             #Server Error Occured.
             print status
@@ -164,7 +174,7 @@ class Cli(cmd.Cmd):
             #case put <filename> <encflag>
             filename, encflag = line.split(" ")
             if not os.path.isfile(filename):
-                print "Error: File not found. Should be in same folder!"
+                print ("Error: %s cannot be transferred" %filename)
                 self.cmdloop()
             if encflag!='N':
                 print "Wrong parameter"
@@ -176,14 +186,18 @@ class Cli(cmd.Cmd):
                 print "Error: File not found. Should be in same folder!"
                 self.cmdloop()
             if encflag!="E" or len(password)!=8:
-                print "Wrong Flag/password"
+                print "Error: Wrong Flag/password"
                 self.cmdloop()
+        else:
+            print "Error: Wrong Number of Arguments!!"
+            self.cmdloop()
         fhash = Common.gen_hash(filename)
         # Hash generated send it now!
         if encflag=="E":
             Common.encrypt_file(password,filename) 
             with open(filename+".enc") as f:
                 msg = f.read()
+            os.remove(filename+".enc")
         else:
             with open(filename) as f:
                 msg = f.read()
@@ -196,6 +210,10 @@ class Cli(cmd.Cmd):
         
 
 def main():
+    if not os.path.exists('tmp_client'):
+        os.makedirs('tmp_client')
+    if not os.path.exists('server_files'):
+        os.makedirs('server_files')
     parser = argparse.ArgumentParser(description="I am Client")
     parser.add_argument("fsca_cert",type=str, help= "Root CA for server")
     parser.add_argument("fcCert",type=str, help="Client Certificate")
