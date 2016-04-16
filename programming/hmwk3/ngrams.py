@@ -5,8 +5,9 @@ __author__ = "Shivam Choudhary"
 __uni__    = "sc3973"
 import argparse
 import os
-
-
+import pprint
+import binascii
+import operator
 class Ngrams(object):
 
     def __init__(self,n,s,in_file,out_file):
@@ -22,19 +23,30 @@ class Ngrams(object):
         """
         self.n          = n
         self.s          = s
-        self.in_file    = open(in_file)
+        self.in_file    = in_file
         self.out_file   = out_file
-        self.read_lines() 
-    def read_lines(self):
-        offset = 0
-        counter=10
+        self.readfile()
+    
+    def readfile(self):
+        ngrams = {}
+        f = open(self.in_file)
+        offset =0
+        size = os.stat(self.in_file).st_size
         while True:
-            self.in_file.seek(offset)
-            print self.in_file.read(self.n)
+            f.seek(offset)
+            chunk = f.read(self.n)
             offset+=self.s
-            if (offset==counter):
+            if len(chunk) <self.n:
                 break
-
+            else:
+                try:
+                    key = binascii.hexlify(chunk)
+                    ngrams[key]+=1
+                except KeyError:
+                    key = binascii.hexlify(chunk)
+                    ngrams[key] = 1
+        sorted_ngram = sorted(ngrams.items(),key=operator.itemgetter(1),reverse=True)
+        pprint.pprint(sorted_ngram)
 
 def main():
     """ Some Notation
@@ -52,8 +64,6 @@ def main():
     parser.add_argument("out_file",type=str, help="the name of the output file")
     args = parser.parse_args()
     ngrams = Ngrams(args.n, args.s, args.in_file, args.out_file)
-
-
 
 if __name__=="__main__":
     main()
