@@ -11,9 +11,15 @@ class Packet(object):
 		"""
 		self.sport = sport
 		self.dport = dport
+                self.loopback ="127.0.0.1"
+
 	def sendTCP(self):
 		""" Part (a) sending TCP packets
 		"""
+                for i in range(3000,3020):
+                    send(IP(dst=self.loopback)/TCP(dport=i))
+
+
 
 
 def main():
