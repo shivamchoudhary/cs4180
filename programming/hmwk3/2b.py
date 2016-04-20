@@ -17,6 +17,7 @@ class SendGet(object):
 		packet = a/b/Raw(load=binascii.unhexlify(self.payload))
 		packet.show()
 		print str(packet)
+		send(packet)
 def main():
 	s = SendGet()
 	
