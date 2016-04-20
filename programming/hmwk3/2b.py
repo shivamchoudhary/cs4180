@@ -14,7 +14,7 @@ class SendGet(object):
 		b = TCP(dport=int(config.get('ipaddress','dst')),sport=int(config.get('ipaddress','source')))
 		packet = a/b/Raw(load=(self.payload))
 		packet.show()
-		str(packet)
+		print str(packet)
 def main():
 	s = SendGet()
 	
