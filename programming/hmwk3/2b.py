@@ -1,4 +1,5 @@
 from scapy.all import *
+import binascii
 import ConfigParser,os
 config = ConfigParser.RawConfigParser()
 
@@ -11,8 +12,9 @@ class SendGet(object):
 		self.send_packet()
 	def send_packet(self):
 		a = IP(src=self.saddress,dst=self.daddress)
-		b = TCP(dport=int(config.get('ipaddress','dst')),sport=int(config.get('ipaddress','source')))
-		packet = a/b/Raw(load=(self.payload))
+		b = TCP(dport=int(config.get('ipaddress','dst')),
+                        sport=int(config.get('ipaddress','source')))
+		packet = a/b/Raw(load=binascii.unhexlify(self.payload))
 		packet.show()
 		print str(packet)
 def main():
