@@ -2,5 +2,6 @@ Static ngram analysis results for $in_file
 ==========================================
 length_ngrams(n) = $n
 length_slide(s)  = $s
+Only Top 20 are shown
 ++++++++++++++++++++++++++++++++++++++++++
 HEX_VALUE:COUNT

@@ -1,0 +1,18 @@
+15:48:17.664093 08:00:27:02:9a:1d (oui Unknown) > ac:bc:32:cb:af:17 (oui Unknown), 
+ethertype IPv4 (0x0800), length 46: (tos 0x0, ttl 64, id 1, offset 0, 
+flags [none], proto ICMP (1), length 32)
+    dyn-160-39-154-241.dyn.columbia.edu > dyn-160-39-155-171.dyn.columbia.edu: 
+    ICMP echo request, id 0, seq 0, length 12
+	0x0000:  acbc 32cb af17 0800 2702 9a1d 0800 4500  ..2.....'.....E.
+	0x0010:  0020 0001 0000 4001 03f1 a027 9af1 a027  ......@....'...'
+	0x0020:  9bab 0800 5066 0000 0000 5445 5354       ....Pf....TEST
+15:48:17.664258 ac:bc:32:cb:af:17 (oui Unknown) > 08:00:27:02:9a:1d (oui Unknown)
+,ethertype IPv4 (0x0800), length 60: (tos 0x0, ttl 64, id 13263, offset 0, 
+flags [none], proto ICMP (1), length 32)
+    dyn-160-39-155-171.dyn.columbia.edu > dyn-160-39-154-241.dyn.columbia.edu: 
+    ICMP echo reply, id 0, seq 0, length 12
+	0x0000:  0800 2702 9a1d acbc 32cb af17 0800 4500  ..'.....2.....E.
+	0x0010:  0020 33cf 0000 4001 d022 a027 9bab a027  ..3...@..".'...'
+	0x0020:  9af1 0000 5866 0000 0000 5445 5354 0000  ....Xf....TEST..
+	0x0030:  0000 0000 0000 0000 0000 0000            ............
+

@@ -4,17 +4,48 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
+ConfigParser	2b.py	/^import ConfigParser,os$/;"	i
 Ngrams	ngrams.py	/^class Ngrams(object):$/;"	c
+Packet	2c.py	/^class Packet(object):$/;"	c
+SendGet	2b.py	/^class SendGet(object):$/;"	c
+Template	ngrams.py	/^from string import Template$/;"	i
+__author__	2a.py	/^__author__ = "Shivam Choudhary"$/;"	v
+__author__	2b.py	/^__author__ = "Shivam Choudhary"$/;"	v
+__author__	2c.py	/^__author__ = "Shivam Choudhary"$/;"	v
 __author__	ngrams.py	/^__author__ = "Shivam Choudhary"$/;"	v
+__init__	2b.py	/^	def __init__(self):$/;"	m	class:SendGet
+__init__	2c.py	/^	def __init__(self, sport,dport):$/;"	m	class:Packet
 __init__	ngrams.py	/^    def __init__(self,n,s,in_file,out_file):$/;"	m	class:Ngrams
+__uni__	2a.py	/^__uni__    = "sc3973"$/;"	v
+__uni__	2b.py	/^__uni__    = "sc3973"$/;"	v
+__uni__	2c.py	/^__uni__    = "sc3973"$/;"	v
 __uni__	ngrams.py	/^__uni__    = "sc3973"$/;"	v
 argparse	ngrams.py	/^import argparse$/;"	i
+binascii	2b.py	/^import binascii$/;"	i
 binascii	ngrams.py	/^import binascii$/;"	i
 calcNgrams	ngrams.py	/^    def calcNgrams(self):$/;"	m	class:Ngrams
-filename	Makefile	/^filename = file.txt # Name of the file<should be in the same folder>$/;"	m
+config	2b.py	/^config = ConfigParser.RawConfigParser()$/;"	v
+gen_stats	ngrams.py	/^    def gen_stats(self,sorted_ngram,out_file):$/;"	m	class:Ngrams
+logging	2c.py	/^import logging$/;"	i
+main	2a.py	/^def main():$/;"	f
+main	2b.py	/^def main():$/;"	f
+main	2c.py	/^def main():$/;"	f
 main	ngrams.py	/^def main():$/;"	f
-n	Makefile	/^n  = 2  # An integer 'n' that is the length of the ngrams.$/;"	m
+main	ping.py	/^def main():$/;"	f
 operator	ngrams.py	/^import operator$/;"	i
+os	2a.py	/^import os$/;"	i
+os	2b.py	/^import ConfigParser,os$/;"	i
+os	2c.py	/^import os$/;"	i
 os	ngrams.py	/^import os$/;"	i
+os	ping.py	/^import os$/;"	i
 pprint	ngrams.py	/^import pprint$/;"	i
-s	Makefile	/^s  = 1  # An integer 's' that is the length of the slide.$/;"	m
+random	2c.py	/^import random$/;"	i
+sendRandom	2c.py	/^	def sendRandom(self):$/;"	m	class:Packet
+sendTCP	2c.py	/^	def sendTCP(self):$/;"	m	class:Packet
+send_data	2a.py	/^def send_data(ip):$/;"	f
+send_data	ping.py	/^def send_data(ip):$/;"	f
+send_packet	2b.py	/^	def send_packet(self):$/;"	m	class:SendGet
+string	2c.py	/^import string$/;"	i
+sys	2a.py	/^import sys$/;"	i
+sys	2c.py	/^import sys$/;"	i
+sys	ping.py	/^import sys$/;"	i

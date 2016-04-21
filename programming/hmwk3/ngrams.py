@@ -51,27 +51,23 @@ class Ngrams(object):
                     ngrams[key]+=1 # If entry exists in the ngrams hash table.
                 except KeyError:
                     ngrams[key] = 1 # New key create entry for the key.
-        # sorted_ngram = sorted(ngrams.items(),key=operator.itemgetter(1),
-                # reverse=True) # Sort the hash table with the vales
         sorted_ngram = sorted(ngrams.items(),key=lambda x:(-x[1],x[0]))[:20]
         self.gen_stats(sorted_ngram,self.out_file)
     
-    def gen_stats(self,sorted_ngram,out_file=None):
+    def gen_stats(self,sorted_ngram,out_file):
         """ Generates the stats from the input binary.
             sorted_ngram:
                         Ngrams Dictionary which is sorted with values.
             outfile:
                         If None, '<in_file+"_"+n+"_"+s".txt>' will be used.
         """
-        t = open('template.txt')
+        t = open('template.txt') # The template is defined in this file
         src = Template(t.read())
         d = {'in_file':self.in_file,
                 'n':self.n,
                 's':self.s
                 }
         template = src.substitute(d)
-        if not out_file:
-            out_file = self.in_file+"_"+str(self.n)+"_"+str(self.s)+".txt"
         with open(out_file,"w") as file:
             file.write(template)
             for tuple in sorted_ngram:

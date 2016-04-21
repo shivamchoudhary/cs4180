@@ -1,3 +1,12 @@
+"""
+2c part i and ii
+Program to send packets on different port numbers and differnt payloads.
+"""
+
+__author__ = "Shivam Choudhary"
+__uni__    = "sc3973"
+
+
 import sys
 import os
 import logging
@@ -22,9 +31,12 @@ class Packet(object):
                     send(IP(dst=self.loopback)/TCP(dport=i))
 		self.sendRandom()
 	def sendRandom(self):
-		"""Part(c)  sending random TCP packets
+		"""Part(b)  sending random TCP packets
 		"""
 		for i in range(0,5):
+                    """
+                    Generate 5 packets and then send them
+                    """
                     randomstr = ''.join(random.choice(string.letters) for x in range(10))
                     send(IP(dst=self.loopback)/TCP(sport=self.sport,dport=self.dport)/Raw(load=randomstr))
 
