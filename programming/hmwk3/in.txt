@@ -1,0 +1,56 @@
+20:02:30.380513 IP (tos 0x0, ttl 64, id 1, offset 0, flags [none], proto TCP (6), length 543)
+    160.39.152.132.commplex-main > dyn-160-39-155-12.dyn.columbia.edu.http: Flags [S], cksum 0xcf07 (correct), seq 0:503, win 8192, length 503: HTTP, length: 503
+	GET / HTTP/1.1
+	Host: ssdeep.sourceforge.net
+	Connection: keep-alive
+	Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+	Upgrade-Insecure-Requests: 1
+	User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36
+	Accept-Encoding: gzip, deflate, sdch
+	Accept-Language: en-US,en;q=0.8
+	Cookie: _ga=GA1.2.1428717803.1453857379
+	If-None-Match: "47e0-5147fddf86940"
+	If-Modified-Since: Fri, 24 Apr 2015 22:25:01 GMT
+	
+	0x0000:  acbc 32cb af17 0800 2702 9a1d 0800 4500  ..2.....'.....E.
+	0x0010:  021f 0001 0000 4006 04f9 a027 9884 a027  ......@....'...'
+	0x0020:  9b0c 1388 0050 0000 0000 0000 0000 5002  .....P........P.
+	0x0030:  2000 cf07 0000 4745 5420 2f20 4854 5450  ......GET./.HTTP
+	0x0040:  2f31 2e31 0d0a 486f 7374 3a20 7373 6465  /1.1..Host:.ssde
+	0x0050:  6570 2e73 6f75 7263 6566 6f72 6765 2e6e  ep.sourceforge.n
+	0x0060:  6574 0d0a 436f 6e6e 6563 7469 6f6e 3a20  et..Connection:.
+	0x0070:  6b65 6570 2d61 6c69 7665 0d0a 4163 6365  keep-alive..Acce
+	0x0080:  7074 3a20 7465 7874 2f68 746d 6c2c 6170  pt:.text/html,ap
+	0x0090:  706c 6963 6174 696f 6e2f 7868 746d 6c2b  plication/xhtml+
+	0x00a0:  786d 6c2c 6170 706c 6963 6174 696f 6e2f  xml,application/
+	0x00b0:  786d 6c3b 713d 302e 392c 696d 6167 652f  xml;q=0.9,image/
+	0x00c0:  7765 6270 2c2a 2f2a 3b71 3d30 2e38 0d0a  webp,*/*;q=0.8..
+	0x00d0:  5570 6772 6164 652d 496e 7365 6375 7265  Upgrade-Insecure
+	0x00e0:  2d52 6571 7565 7374 733a 2031 0d0a 5573  -Requests:.1..Us
+	0x00f0:  6572 2d41 6765 6e74 3a20 4d6f 7a69 6c6c  er-Agent:.Mozill
+	0x0100:  612f 352e 3020 2858 3131 3b20 4c69 6e75  a/5.0.(X11;.Linu
+	0x0110:  7820 7838 365f 3634 2920 4170 706c 6557  x.x86_64).AppleW
+	0x0120:  6562 4b69 742f 3533 372e 3336 2028 4b48  ebKit/537.36.(KH
+	0x0130:  544d 4c2c 206c 696b 6520 4765 636b 6f29  TML,.like.Gecko)
+	0x0140:  2043 6872 6f6d 652f 3530 2e30 2e32 3636  .Chrome/50.0.266
+	0x0150:  312e 3735 2053 6166 6172 692f 3533 372e  1.75.Safari/537.
+	0x0160:  3336 0d0a 4163 6365 7074 2d45 6e63 6f64  36..Accept-Encod
+	0x0170:  696e 673a 2067 7a69 702c 2064 6566 6c61  ing:.gzip,.defla
+	0x0180:  7465 2c20 7364 6368 0d0a 4163 6365 7074  te,.sdch..Accept
+	0x0190:  2d4c 616e 6775 6167 653a 2065 6e2d 5553  -Language:.en-US
+	0x01a0:  2c65 6e3b 713d 302e 380d 0a43 6f6f 6b69  ,en;q=0.8..Cooki
+	0x01b0:  653a 205f 6761 3d47 4131 2e32 2e31 3432  e:._ga=GA1.2.142
+	0x01c0:  3837 3137 3830 332e 3134 3533 3835 3733  8717803.14538573
+	0x01d0:  3739 0d0a 4966 2d4e 6f6e 652d 4d61 7463  79..If-None-Matc
+	0x01e0:  683a 2022 3437 6530 2d35 3134 3766 6464  h:."47e0-5147fdd
+	0x01f0:  6638 3639 3430 220d 0a49 662d 4d6f 6469  f86940"..If-Modi
+	0x0200:  6669 6564 2d53 696e 6365 3a20 4672 692c  fied-Since:.Fri,
+	0x0210:  2032 3420 4170 7220 3230 3135 2032 323a  .24.Apr.2015.22:
+	0x0220:  3235 3a30 3120 474d 540d 0a0d 0a         25:01.GMT....
+20:02:30.380574 IP (tos 0x0, ttl 64, id 35389, offset 0, flags [none], proto TCP (6), length 40)
+    dyn-160-39-155-12.dyn.columbia.edu.http > 160.39.152.132.commplex-main: Flags [R.], cksum 0x2621 (correct), seq 0, ack 504, win 0, length 0
+	0x0000:  0000 0c9f f000 acbc 32cb af17 0800 4500  ........2.....E.
+	0x0010:  0028 8a3d 0000 4006 7cb3 a027 9b0c a027  .(.=..@.|..'...'
+	0x0020:  9884 0050 1388 0000 0000 0000 01f8 5014  ...P..........P.
+	0x0030:  0000 2621 0000                           ..&!..
+
