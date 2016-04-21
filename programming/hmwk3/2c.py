@@ -23,18 +23,19 @@ class Packet(object):
 		"""Part(c)  sending random TCP packets
 		"""
 		for i in range(5):
-			randomstr = "".join(random.choice(string.letters) for i in range(10))
-			send(IP(dst=self.loopback)/TCP(sport=int(self.sport),dport=int(self.dport))/Raw(load=randomstr)	
-
+                    randomstr = ''.join(random.choice(string.letters) 
+                            for x in range(10))
+                    send(IP(dst=self.loopback)/TCP(sport=int(self.sport),
+                        dport=int(self.dport)/Raw(load=randomstr)))
 
 
 def main():
-	try:
-		sport = sys.argv[1]
-		dport = sys.argv[2]	
-	except IndexError:
-		print "Error: Run as python <c1.py> <source_port> <dst_port> "	
-		exit(0)
-	p = Packet(sport,dport)
+    try:
+	sport = sys.argv[1]
+	dport = sys.argv[2]	
+    except IndexError:
+	print "Error: Run as python <c1.py> <source_port> <dst_port> "	
+	exit(0)
+    p = Packet(sport,dport)
 if __name__=="__main__":
 	main()
