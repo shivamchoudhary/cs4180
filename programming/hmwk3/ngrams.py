@@ -51,8 +51,9 @@ class Ngrams(object):
                     ngrams[key]+=1 # If entry exists in the ngrams hash table.
                 except KeyError:
                     ngrams[key] = 1 # New key create entry for the key.
-        sorted_ngram = sorted(ngrams.items(),key=operator.itemgetter(1),
-                reverse=True)[:20] # Sort the hash table with the vales 
+        # sorted_ngram = sorted(ngrams.items(),key=operator.itemgetter(1),
+                # reverse=True) # Sort the hash table with the vales
+        sorted_ngram = sorted(ngrams.items(),key=lambda x:(-x[1],x[0]))[:20]
         self.gen_stats(sorted_ngram,self.out_file)
     
     def gen_stats(self,sorted_ngram,out_file=None):
